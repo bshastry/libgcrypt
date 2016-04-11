@@ -111,18 +111,37 @@ list_curves (void)
     fail ("curve iteration failed\n");
 }
 
-
 static void
-check_matching (void)
+check_matching (char *keyfile)
 {
   gpg_error_t err;
   gcry_sexp_t key;
   const char *name;
   unsigned int nbits;
 
-  err = gcry_sexp_new (&key, sample_key_1, 0, 1);
-  if (err)
+  FILE *keyfh = fopen(keyfile, "rb");
+  if (!keyfh)
+    die ("error opening key file\n");
+
+  fseek(keyfh, 0L, SEEK_END);
+  unsigned long sz = ftell(keyfh) + 1;
+  fseek(keyfh, 0, SEEK_SET);
+
+  char *keybuf = malloc(sz+1);
+  if (!keybuf) {
+    die ("error allocating buffer for key file contents\n");
+    fclose(keyfh);
+  }
+
+  size_t bytes_read = fread(keybuf, sz, 1, keyfh);
+
+  err = gcry_sexp_new (&key, keybuf, 0, 1);
+  if (err) {
     die ("parsing s-expression string failed: %s\n", gpg_strerror (err));
+    free(keybuf);
+    fclose(keyfh);
+  }
+
   name = gcry_pk_get_curve (key, 0, &nbits);
   if (!name)
     fail ("curve name not found for sample_key_1\n");
@@ -133,11 +152,15 @@ check_matching (void)
     fail ("expected curve size %u but got %u for sample_key_1\n",
           sample_key_1_nbits, nbits);
 
+  printf("All checks passed!\n");
   gcry_sexp_release (key);
-
+/*
   err = gcry_sexp_new (&key, sample_key_2, 0, 1);
-  if (err)
+  if (err) {
     die ("parsing s-expression string failed: %s\n", gpg_strerror (err));
+    free(keybuf);
+    fclose(keyfh);
+  }
   name = gcry_pk_get_curve (key, 0, &nbits);
   if (!name)
     fail ("curve name not found for sample_key_2\n");
@@ -149,6 +172,9 @@ check_matching (void)
           sample_key_2_nbits, nbits);
 
   gcry_sexp_release (key);
+*/
+  free(keybuf);
+  fclose(keyfh);
 }
 
 
@@ -195,6 +221,12 @@ main (int argc, char **argv)
 {
   int debug = 0;
 
+  if (argc != 2) {
+    printf("usage: curves <keyfile name> that contains a \
+256 bit key from NIST P-256 curve\n");
+    exit(1);
+  }
+
   if (argc > 1 && !strcmp (argv[1], "--verbose"))
     verbose = 1;
   else if (argc > 1 && !strcmp (argv[1], "--debug"))
@@ -208,7 +240,7 @@ main (int argc, char **argv)
   if (debug)
     gcry_control (GCRYCTL_SET_DEBUG_FLAGS, 1u, 0);
   list_curves ();
-  check_matching ();
+  check_matching (argv[1]);
   check_get_params ();
 
   return error_count ? 1 : 0;

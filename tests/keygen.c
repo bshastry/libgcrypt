@@ -27,7 +27,6 @@
 #include <stdarg.h>
 #include "../src/gcrypt-int.h"
 
-
 #define PGM "keygen"
 
 #define xmalloc(a)    gcry_xmalloc ((a))

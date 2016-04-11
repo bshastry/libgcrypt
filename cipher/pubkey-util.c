@@ -301,7 +301,6 @@ _gcry_pk_util_get_nbits (gcry_sexp_t list, unsigned int *r_nbits)
   return 0;
 }
 
-
 /* Get the optional "rsa-use-e" parameter from an s-expression of the
  * format:
  *

@@ -48,7 +48,7 @@
 #if defined(__x86_64__) && defined(HAVE_GCC_INLINE_ASM_SSSE3) && \
     (defined(HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS) || \
      defined(HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS))
-# define USE_SSSE3 1
+# define USE_SSSE3 0
 #endif
 
 /* USE_AVX indicates whether to compile with Intel AVX code. */
@@ -56,7 +56,7 @@
 #if defined(__x86_64__) && defined(HAVE_GCC_INLINE_ASM_AVX) && \
     (defined(HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS) || \
      defined(HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS))
-# define USE_AVX 1
+# define USE_AVX 0
 #endif
 
 /* USE_BMI2 indicates whether to compile with Intel AVX/BMI2 code. */
@@ -65,7 +65,7 @@
     defined(HAVE_GCC_INLINE_ASM_BMI2) && \
     (defined(HAVE_COMPATIBLE_GCC_AMD64_PLATFORM_AS) || \
      defined(HAVE_COMPATIBLE_GCC_WIN64_PLATFORM_AS))
-# define USE_BMI2 1
+# define USE_BMI2 0
 #endif
 
 /* USE_NEON indicates whether to enable ARM NEON assembly code. */
@@ -74,7 +74,7 @@
 # if defined(HAVE_ARM_ARCH_V6) && defined(__ARMEL__) \
      && defined(HAVE_COMPATIBLE_GCC_ARM_PLATFORM_AS) \
      && defined(HAVE_GCC_INLINE_ASM_NEON)
-#  define USE_NEON 1
+#  define USE_NEON 0
 # endif
 #endif /*ENABLE_NEON_SUPPORT*/
 
@@ -313,9 +313,9 @@ _gcry_sha1_transform_amd64_ssse3 (void *state, const unsigned char *data,
 #endif
 
 #ifdef USE_AVX
-unsigned int
-_gcry_sha1_transform_amd64_avx (void *state, const unsigned char *data,
-                                 size_t nblks) ASM_FUNC_ABI;
+//unsigned int
+//_gcry_sha1_transform_amd64_avx (void *state, const unsigned char *data,
+//                                 size_t nblks) ASM_FUNC_ABI;
 #endif
 
 #ifdef USE_BMI2
@@ -337,9 +337,9 @@ transform (void *ctx, const unsigned char *data, size_t nblks)
            + 4 * sizeof(void*) + ASM_EXTRA_STACK;
 #endif
 #ifdef USE_AVX
-  if (hd->use_avx)
-    return _gcry_sha1_transform_amd64_avx (&hd->h0, data, nblks)
-           + 4 * sizeof(void*) + ASM_EXTRA_STACK;
+//  if (hd->use_avx)
+//    return _gcry_sha1_transform_amd64_avx (&hd->h0, data, nblks)
+//           + 4 * sizeof(void*) + ASM_EXTRA_STACK;
 #endif
 #ifdef USE_SSSE3
   if (hd->use_ssse3)
